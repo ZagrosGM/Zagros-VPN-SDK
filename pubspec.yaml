@@ -1,0 +1,19 @@
+name: zagros_vpn_sdk
+description: Pure-Dart SDK for the authenticated Zagros Application API and normalized VPN configuration models.
+version: 0.1.0-dev.1
+homepage: https://github.com/ZagrosGM/Zagros-VPN-SDK
+repository: https://github.com/ZagrosGM/Zagros-VPN-SDK
+issue_tracker: https://github.com/ZagrosGM/Zagros-VPN-SDK/issues
+publish_to: none
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  cryptography: ^2.7.0
+  http: ^1.2.0
+  yaml: ^3.1.2
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0

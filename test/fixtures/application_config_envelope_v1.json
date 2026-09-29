@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "payload_utf8": "{\"config\":{\"payload\":{\"password\":\"vector-secret\"}},\"v\":1}",
+  "keys": {
+    "application_config_private_b64url": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA",
+    "application_config_public_b64url": "B6N8vBQgk8i3VdwbEOhstCY3StFqqFPtC9_AsrhtHHw",
+    "device_private_b64url": "ISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0A",
+    "device_public_b64url": "WGmv9FBUlzLLqu1eXfmzCm2jHLDldCutWtShp2jxpns",
+    "application_signing_private_b64url": "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1-f4A",
+    "application_signing_public_b64url": "iC0Oo7KGTnpYfz5pjOpEWZmDEuZV4F-l6LURnYuqyM0",
+    "ephemeral_private_b64url": "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2A"
+  },
+  "envelope": {
+    "v": 1,
+    "alg": "X25519X2-HKDF-SHA256-AES-256-GCM+Ed25519",
+    "application_id": "11111111-2222-3333-4444-555555555555",
+    "application_key_id": "cfg-test-1",
+    "signing_key_id": "sig-test-1",
+    "device_id": "dev-test-1",
+    "config_id": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+    "connection_id": null,
+    "core_id": "xray",
+    "protocol": "vless",
+    "engine": "sing-box",
+    "issued_at": 1770000000,
+    "not_before": 1770000000,
+    "expires_at": 1770000030,
+    "salt": "gYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6A",
+    "eph": "ZLEBsdC-WocEvQePmJUAH8A-jp-VIvGI3RKNmEbUhGY",
+    "nonce": "oaKjpKWmp6ipqqus",
+    "ct": "TQUIP9NWZ4fG9evBYtMCnLCzu5gCOekv88sRaRFMZhC4nn6XWeFa0WQ2FuumwJU1-Nsi2IaRafCZph00Ok_d3vDz4Ro2xV17vw",
+    "signature": "Fzq2-xUrQiJz5cfe5K9IwOmIvVeSyBqHB0cLyAlrnlgz7-HuWt42gLwBS34xh5wTNkAuSPn-YrYrP_P-JfzeBw"
+  }
+}

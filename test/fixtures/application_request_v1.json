@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "request": {
+    "method": "POST",
+    "path": "/api/application/v1/auth/login",
+    "raw_query": "b=2&a=1",
+    "timestamp": 1770000000,
+    "nonce": "abcdefghijklmnop",
+    "application_id": "11111111-2222-3333-4444-555555555555",
+    "application_key_id": "cfg-test-1",
+    "device_id": "dev-test-1",
+    "body_utf8": "{\"username\":\"alice\"}",
+    "canonical_utf8": "ZAGROS-APPLICATION-REQUEST-V1\nPOST\n/api/application/v1/auth/login?a=1&b=2\n1770000000\nabcdefghijklmnop\n11111111-2222-3333-4444-555555555555\ncfg-test-1\ndev-test-1\n04c4be721c109ac0f746bb00d3906ebf1b396457615f213ffee6e3cb6019bf64\n"
+  },
+  "x25519": {
+    "server_private_b64url": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA",
+    "server_public_b64url": "B6N8vBQgk8i3VdwbEOhstCY3StFqqFPtC9_AsrhtHHw",
+    "device_private_b64url": "ISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0-P0A",
+    "device_public_b64url": "WGmv9FBUlzLLqu1eXfmzCm2jHLDldCutWtShp2jxpns",
+    "derived_mac_key_b64url": "sD31w-T1ZyA_K0ExG-TpHTz0tUcT4uHAIizReftyXkI",
+    "signature_b64url": "P1G1OlKOtH8PukHWSw45aCvf8r2WadxoDMOH-cR-yRs"
+  }
+}
