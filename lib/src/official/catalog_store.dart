@@ -233,11 +233,13 @@ class SecureOfficialCatalogStore {
         'raw_source': profile.rawSource,
         'files': profile.configs
             .where((entry) => entry.source == OfficialConfigSource.file)
-            .map((entry) => <String, Object?>{
-                  'core': entry.fileCoreId,
-                  'tag': entry.fileTag,
-                  'content': entry.rawText,
-                })
+            .map(
+              (entry) => <String, Object?>{
+                'core': entry.fileCoreId,
+                'tag': entry.fileTag,
+                'content': entry.rawText,
+              },
+            )
             .toList(growable: false),
         'created_at': profile.createdAt.toUtc().toIso8601String(),
         'updated_at': profile.updatedAt.toUtc().toIso8601String(),
@@ -378,10 +380,7 @@ class SecureOfficialCatalogStore {
       final tag = item['tag'];
       final content = item['content'];
       if (core is! String || tag is! String || content is! String) continue;
-      if (core.isEmpty ||
-          core.length > 64 ||
-          tag.isEmpty ||
-          tag.length > 256) {
+      if (core.isEmpty || core.length > 64 || tag.isEmpty || tag.length > 256) {
         continue;
       }
       if (content.isEmpty || content.length > maximumFileBytes) continue;
@@ -391,15 +390,19 @@ class SecureOfficialCatalogStore {
       // the client version that writes them (refresh re-resolves anyway).
       if (core.toLowerCase() != 'wireguard') continue;
       try {
-        entries.add(OfficialConfigEntry(
-          id: '$profileId.${startIndex + entries.length}',
-          rawText: content,
-          normalized:
-              parseWireGuard(content, displayName: 'WireGuard \u00b7 $tag'),
-          source: OfficialConfigSource.file,
-          fileCoreId: core,
-          fileTag: tag,
-        ));
+        entries.add(
+          OfficialConfigEntry(
+            id: '$profileId.${startIndex + entries.length}',
+            rawText: content,
+            normalized: parseWireGuard(
+              content,
+              displayName: 'WireGuard \u00b7 $tag',
+            ),
+            source: OfficialConfigSource.file,
+            fileCoreId: core,
+            fileTag: tag,
+          ),
+        );
       } on FormatException {
         continue;
       }
@@ -437,8 +440,7 @@ class SecureOfficialCatalogStore {
       }
       // This client only writes WireGuard files; anything else fails
       // closed — saving what load cannot rebuild would corrupt the catalog.
-      if (core.toLowerCase() != 'wireguard' ||
-          !_fileProtocolMatches(entry)) {
+      if (core.toLowerCase() != 'wireguard' || !_fileProtocolMatches(entry)) {
         throw const FormatException('invalid Official profile file');
       }
     }

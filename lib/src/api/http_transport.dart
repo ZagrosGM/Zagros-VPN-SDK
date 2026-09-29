@@ -14,8 +14,12 @@ class HttpApiTransport implements ApiTransport {
     http.Client? client,
     this.policy = const TransportPolicy(),
     bool allowInsecureHttp = false,
-  })  : baseUri = _validateBaseUri(baseUri, allowInsecureHttp: allowInsecureHttp),
-        _client = client ?? _createDefaultClient(allowInsecureHttp: allowInsecureHttp);
+  })  : baseUri = _validateBaseUri(
+          baseUri,
+          allowInsecureHttp: allowInsecureHttp,
+        ),
+        _client = client ??
+            _createDefaultClient(allowInsecureHttp: allowInsecureHttp);
 
   static http.Client _createDefaultClient({bool allowInsecureHttp = false}) {
     if (allowInsecureHttp) {

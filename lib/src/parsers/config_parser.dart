@@ -145,7 +145,9 @@ class ConfigParser {
                 ),
               ],
               credentials: Map<String, Object?>.unmodifiable(credentials),
-              options: Map<String, Object?>.unmodifiable(Map<String, Object?>.from(outbound)),
+              options: Map<String, Object?>.unmodifiable(
+                Map<String, Object?>.from(outbound),
+              ),
               extensions: <String, Object?>{
                 'original': mapping,
                 'outbound': outbound,

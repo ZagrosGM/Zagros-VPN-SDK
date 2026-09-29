@@ -131,109 +131,118 @@ proxies:
       client.close();
     });
 
-    test('follows bounded same-origin redirect without leaking cross-origin',
-        () async {
-      final requests = <Uri>[];
-      final sameOrigin = HttpOfficialSubscriptionClient(
-        client: MockClient((request) async {
-          requests.add(request.url);
-          if (request.url.path == '/start') {
-            return http.Response('', 302,
-                headers: <String, String>{'location': '/next'});
-          }
-          expect(request.headers['x-device-id'], 'zg_stable-device-id');
-          return http.Response(_link, 200);
-        }),
-      );
-      final result = await sameOrigin.fetch(
-        Uri.parse('https://panel.example/start'),
-        deviceId: 'zg_stable-device-id',
-      );
-      expect(result.configs, hasLength(1));
-      expect(requests.map((uri) => uri.path), <String>['/start', '/next']);
-      sameOrigin.close();
-
-      var calls = 0;
-      final crossOrigin = HttpOfficialSubscriptionClient(
-        client: MockClient((request) async {
-          calls += 1;
-          return http.Response(
-            '',
-            302,
-            headers: <String, String>{
-              'location': 'https://attacker.example/steal',
-            },
-          );
-        }),
-      );
-      await expectLater(
-        crossOrigin.fetch(
-          Uri.parse('https://panel.example/start?token=secret'),
+    test(
+      'follows bounded same-origin redirect without leaking cross-origin',
+      () async {
+        final requests = <Uri>[];
+        final sameOrigin = HttpOfficialSubscriptionClient(
+          client: MockClient((request) async {
+            requests.add(request.url);
+            if (request.url.path == '/start') {
+              return http.Response(
+                '',
+                302,
+                headers: <String, String>{'location': '/next'},
+              );
+            }
+            expect(request.headers['x-device-id'], 'zg_stable-device-id');
+            return http.Response(_link, 200);
+          }),
+        );
+        final result = await sameOrigin.fetch(
+          Uri.parse('https://panel.example/start'),
           deviceId: 'zg_stable-device-id',
-        ),
-        throwsA(
-          isA<ZagrosException>().having(
-            (error) => error.kind,
-            'kind',
-            ZagrosErrorKind.secureTransportRequired,
-          ),
-        ),
-      );
-      expect(calls, 1);
-      crossOrigin.close();
-    });
+        );
+        expect(result.configs, hasLength(1));
+        expect(requests.map((uri) => uri.path), <String>['/start', '/next']);
+        sameOrigin.close();
 
-    test('rejects insecure URL, invalid identity, and oversized response',
-        () async {
-      var calls = 0;
-      final client = HttpOfficialSubscriptionClient(
-        maximumResponseBytes: 1024,
-        client: MockClient((request) async {
-          calls += 1;
-          return http.Response('x' * 1025, 200);
-        }),
-      );
+        var calls = 0;
+        final crossOrigin = HttpOfficialSubscriptionClient(
+          client: MockClient((request) async {
+            calls += 1;
+            return http.Response(
+              '',
+              302,
+              headers: <String, String>{
+                'location': 'https://attacker.example/steal',
+              },
+            );
+          }),
+        );
+        await expectLater(
+          crossOrigin.fetch(
+            Uri.parse('https://panel.example/start?token=secret'),
+            deviceId: 'zg_stable-device-id',
+          ),
+          throwsA(
+            isA<ZagrosException>().having(
+              (error) => error.kind,
+              'kind',
+              ZagrosErrorKind.secureTransportRequired,
+            ),
+          ),
+        );
+        expect(calls, 1);
+        crossOrigin.close();
+      },
+    );
 
-      await expectLater(
-        client.fetch(
-          Uri.parse('http://panel.example/sub'),
-          deviceId: 'zg_stable-device-id',
-        ),
-        throwsA(
-          isA<ZagrosException>().having(
-            (error) => error.kind,
-            'kind',
-            ZagrosErrorKind.secureTransportRequired,
+    test(
+      'rejects insecure URL, invalid identity, and oversized response',
+      () async {
+        var calls = 0;
+        final client = HttpOfficialSubscriptionClient(
+          maximumResponseBytes: 1024,
+          client: MockClient((request) async {
+            calls += 1;
+            return http.Response('x' * 1025, 200);
+          }),
+        );
+
+        await expectLater(
+          client.fetch(
+            Uri.parse('http://panel.example/sub'),
+            deviceId: 'zg_stable-device-id',
           ),
-        ),
-      );
-      await expectLater(
-        client.fetch(Uri.parse('https://panel.example/sub'),
-            deviceId: 'bad id'),
-        throwsA(
-          isA<ZagrosException>().having(
-            (error) => error.kind,
-            'kind',
-            ZagrosErrorKind.validation,
+          throwsA(
+            isA<ZagrosException>().having(
+              (error) => error.kind,
+              'kind',
+              ZagrosErrorKind.secureTransportRequired,
+            ),
           ),
-        ),
-      );
-      await expectLater(
-        client.fetch(
-          Uri.parse('https://panel.example/sub'),
-          deviceId: 'zg_stable-device-id',
-        ),
-        throwsA(
-          isA<ZagrosException>().having(
-            (error) => error.kind,
-            'kind',
-            ZagrosErrorKind.malformedResponse,
+        );
+        await expectLater(
+          client.fetch(
+            Uri.parse('https://panel.example/sub'),
+            deviceId: 'bad id',
           ),
-        ),
-      );
-      expect(calls, 1);
-      client.close();
-    });
+          throwsA(
+            isA<ZagrosException>().having(
+              (error) => error.kind,
+              'kind',
+              ZagrosErrorKind.validation,
+            ),
+          ),
+        );
+        await expectLater(
+          client.fetch(
+            Uri.parse('https://panel.example/sub'),
+            deviceId: 'zg_stable-device-id',
+          ),
+          throwsA(
+            isA<ZagrosException>().having(
+              (error) => error.kind,
+              'kind',
+              ZagrosErrorKind.malformedResponse,
+            ),
+          ),
+        );
+        expect(calls, 1);
+        client.close();
+      },
+    );
 
     test('maps a request timeout to a safe transport failure', () async {
       final client = HttpOfficialSubscriptionClient(
@@ -265,8 +274,11 @@ proxies:
       final client = HttpOfficialSubscriptionClient(
         client: MockClient((request) async {
           observed = request;
-          return http.Response('', status,
-              headers: <String, String>{'etag': '"v2"'});
+          return http.Response(
+            '',
+            status,
+            headers: <String, String>{'etag': '"v2"'},
+          );
         }),
       );
       await expectLater(

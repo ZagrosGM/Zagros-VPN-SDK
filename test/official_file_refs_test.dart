@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:zagros_vpn_sdk/zagros_vpn_sdk.dart';
 
-const _markerOvpn =
-    '# zagros-file: /sub/file/TOKEN123/openvpn/openvpn';
+const _markerOvpn = '# zagros-file: /sub/file/TOKEN123/openvpn/openvpn';
 const _markerWg = '# zagros-file: /sub/file/TOKEN123/wireguard/wireguard';
 
 void main() {
@@ -73,8 +72,10 @@ void main() {
         path: '/sub/file/TOKEN123/openvpn/openvpn',
       );
       final uri = ref.resolve(Uri.parse('https://panel.example:8443/sub/old'));
-      expect(uri.toString(),
-          'https://panel.example:8443/sub/file/TOKEN123/openvpn/openvpn');
+      expect(
+        uri.toString(),
+        'https://panel.example:8443/sub/file/TOKEN123/openvpn/openvpn',
+      );
     });
 
     test('refuses cross-origin escape', () {
@@ -83,8 +84,10 @@ void main() {
         tag: 'y',
         path: 'https://evil.example/z',
       );
-      expect(() => ref.resolve(Uri.parse('https://panel.example/sub/a')),
-          throwsFormatException);
+      expect(
+        () => ref.resolve(Uri.parse('https://panel.example/sub/a')),
+        throwsFormatException,
+      );
     });
   });
 
@@ -93,10 +96,7 @@ void main() {
       const parser = OfficialConfigParser();
       const plain = '$_markerOvpn\n';
       expect(parser.fileRefs(plain), hasLength(1));
-      expect(
-        parser.fileRefs(base64.encode(utf8.encode(plain))),
-        hasLength(1),
-      );
+      expect(parser.fileRefs(base64.encode(utf8.encode(plain))), hasLength(1));
     });
   });
 }

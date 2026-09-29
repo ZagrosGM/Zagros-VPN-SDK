@@ -67,6 +67,7 @@ class ApplicationAuthController {
     );
     return base64Url.encode(signature.bytes).replaceAll('=', '');
   }
+
   static const String deviceIdStorageKey = 'zagros.application.device.id.v1';
   ApplicationSession? _session;
 
@@ -149,7 +150,7 @@ class ApplicationAuthController {
         await api.login(deviceId: active.deviceId, credentials: credentials),
       );
       return active;
-    } on ZagrosException catch (error) {
+    } on ZagrosException {
       // The stored device identity is no longer recognized by the server:
       // re-enrollment needs a fresh activation code from the panel.
       rethrow;

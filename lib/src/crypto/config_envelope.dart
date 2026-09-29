@@ -128,7 +128,8 @@ Future<OpenedConfig> openConfigEnvelope({
     );
   }
   final nowSeconds = now.toUtc().millisecondsSinceEpoch ~/ 1000;
-  if (nowSeconds < envelope.notBefore - 600 || nowSeconds >= envelope.expiresAt) {
+  if (nowSeconds < envelope.notBefore - 600 ||
+      nowSeconds >= envelope.expiresAt) {
     throw const ZagrosException(
       ZagrosErrorKind.envelopeExpired,
       'Config envelope is outside its validity window',

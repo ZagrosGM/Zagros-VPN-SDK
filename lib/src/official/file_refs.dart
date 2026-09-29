@@ -85,9 +85,7 @@ List<OfficialFileRef> extractFileRefs(
       if (ref != null) {
         refs.add(ref);
         if (refs.length > maximumFileRefs) {
-          throw const FormatException(
-            'subscription references too many files',
-          );
+          throw const FormatException('subscription references too many files');
         }
       }
     }
@@ -126,8 +124,7 @@ OfficialFileRef? _parseMarker(String path) {
 
 String? _tryDecodeBase64(String input) {
   final compact = input.replaceAll(RegExp(r'\s+'), '');
-  if (compact.isEmpty ||
-      !RegExp(r'^[A-Za-z0-9+/_=-]+$').hasMatch(compact)) {
+  if (compact.isEmpty || !RegExp(r'^[A-Za-z0-9+/_=-]+$').hasMatch(compact)) {
     return null;
   }
   try {

@@ -3,7 +3,6 @@ import 'dart:math';
 
 import '../crypto/encoding.dart';
 import '../models/error.dart';
-import '../parsers/openvpn_parser.dart';
 import '../parsers/wireguard_parser.dart';
 import '../policy/client_policy.dart';
 import 'catalog_store.dart';
@@ -353,14 +352,16 @@ class OfficialProfileRepository {
     }
     final entries = <OfficialConfigEntry>[..._entries(id, document.configs)];
     for (final file in files) {
-      entries.add(OfficialConfigEntry(
-        id: '$id.${entries.length}',
-        rawText: file.config.rawText,
-        normalized: file.config.normalized,
-        source: OfficialConfigSource.file,
-        fileCoreId: file.coreId,
-        fileTag: file.tag,
-      ));
+      entries.add(
+        OfficialConfigEntry(
+          id: '$id.${entries.length}',
+          rawText: file.config.rawText,
+          normalized: file.config.normalized,
+          source: OfficialConfigSource.file,
+          fileCoreId: file.coreId,
+          fileTag: file.tag,
+        ),
+      );
     }
     return OfficialProfile(
       id: id,
@@ -387,11 +388,8 @@ class OfficialProfileRepository {
   /// reported on the profile instead of failing the refresh. WireGuard only
   /// in this phase — other file-backed cores need their own project (no
   /// native engine to connect them), so their markers are left alone.
-  Future<
-      ({
-        List<_ResolvedFile> files,
-        List<OfficialFileError> errors,
-      })> _resolveFileEntries(
+  Future<({List<_ResolvedFile> files, List<OfficialFileError> errors})>
+      _resolveFileEntries(
     Uri uri,
     OfficialSubscriptionDocument document,
     String deviceId,
@@ -404,11 +402,13 @@ class OfficialProfileRepository {
     for (var index = 0; index < candidates.length; index += 1) {
       final ref = candidates[index];
       if (index >= maximumFilesPerRefresh) {
-        errors.add(OfficialFileError(
-          coreId: ref.coreId,
-          tag: ref.tag,
-          reason: 'too many file markers in one subscription',
-        ));
+        errors.add(
+          OfficialFileError(
+            coreId: ref.coreId,
+            tag: ref.tag,
+            reason: 'too many file markers in one subscription',
+          ),
+        );
         continue;
       }
       try {
@@ -417,35 +417,43 @@ class OfficialProfileRepository {
           ref: ref,
           deviceId: deviceId,
         );
-        resolved.add(_ResolvedFile(
-          config: ParsedOfficialConfig(
-            rawText: content,
-            normalized: parseWireGuard(
-              content,
-              displayName: 'WireGuard \u00b7 ${ref.tag}',
+        resolved.add(
+          _ResolvedFile(
+            config: ParsedOfficialConfig(
+              rawText: content,
+              normalized: parseWireGuard(
+                content,
+                displayName: 'WireGuard \u00b7 ${ref.tag}',
+              ),
             ),
+            coreId: ref.coreId,
+            tag: ref.tag,
           ),
-          coreId: ref.coreId,
-          tag: ref.tag,
-        ));
+        );
       } on ZagrosException catch (error) {
-        errors.add(OfficialFileError(
-          coreId: ref.coreId,
-          tag: ref.tag,
-          reason: 'file download failed (${error.kind.name})',
-        ));
+        errors.add(
+          OfficialFileError(
+            coreId: ref.coreId,
+            tag: ref.tag,
+            reason: 'file download failed (${error.kind.name})',
+          ),
+        );
       } on FormatException {
-        errors.add(OfficialFileError(
-          coreId: ref.coreId,
-          tag: ref.tag,
-          reason: 'file is not a valid WireGuard profile',
-        ));
+        errors.add(
+          OfficialFileError(
+            coreId: ref.coreId,
+            tag: ref.tag,
+            reason: 'file is not a valid WireGuard profile',
+          ),
+        );
       } catch (_) {
-        errors.add(OfficialFileError(
-          coreId: ref.coreId,
-          tag: ref.tag,
-          reason: 'file could not be used',
-        ));
+        errors.add(
+          OfficialFileError(
+            coreId: ref.coreId,
+            tag: ref.tag,
+            reason: 'file could not be used',
+          ),
+        );
       }
     }
     return (files: resolved, errors: errors);

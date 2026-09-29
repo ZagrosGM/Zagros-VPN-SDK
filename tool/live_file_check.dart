@@ -21,8 +21,10 @@ String _scrub(String text, String token) =>
 
 Future<void> main(List<String> args) async {
   if (args.length < 2) {
-    stderr.writeln('usage: live_file_check.dart <sub-url> <device-id> '
-        '[--save-wg path]');
+    stderr.writeln(
+      'usage: live_file_check.dart <sub-url> <device-id> '
+      '[--save-wg path]',
+    );
     exit(2);
   }
   final subUrl = args[0];
@@ -45,8 +47,10 @@ Future<void> main(List<String> args) async {
       final scheme = config.normalized.protocol;
       schemes[scheme] = (schemes[scheme] ?? 0) + 1;
     }
-    stdout.writeln('fetch=OK links=${document.configs.length} '
-        'schemes=$schemes markers=${document.fileRefs.length}');
+    stdout.writeln(
+      'fetch=OK links=${document.configs.length} '
+      'schemes=$schemes markers=${document.fileRefs.length}',
+    );
     for (final ref in document.fileRefs) {
       stdout.writeln('marker: core=${ref.coreId} tag=${ref.tag}');
     }
@@ -69,21 +73,26 @@ Future<void> main(List<String> args) async {
         final endpoints = parsed.endpoints
             .map((e) => '${e.host}:${e.port}/${e.transport}')
             .join(',');
-        stdout.writeln('downloaded: core=${ref.coreId} tag=${ref.tag} '
-            'bytes=${utf8.encode(content).length} '
-            'protocol=${parsed.protocol} engine=${parsed.engine} '
-            'display=${parsed.displayName} endpoints=$endpoints');
+        stdout.writeln(
+          'downloaded: core=${ref.coreId} tag=${ref.tag} '
+          'bytes=${utf8.encode(content).length} '
+          'protocol=${parsed.protocol} engine=${parsed.engine} '
+          'display=${parsed.displayName} endpoints=$endpoints',
+        );
         if (savePath.isNotEmpty && !saved) {
           final file = File(savePath);
           await file.writeAsString(content);
           await Process.run('chmod', ['600', savePath]);
-          stdout.writeln('saved: path=$savePath bytes='
-              '${await file.length()}');
+          stdout.writeln(
+            'saved: path=$savePath bytes='
+            '${await file.length()}',
+          );
           saved = true;
         }
       } catch (error) {
-        stdout.writeln(scrub(
-            'FAILED: core=${ref.coreId} tag=${ref.tag} error=$error'));
+        stdout.writeln(
+          scrub('FAILED: core=${ref.coreId} tag=${ref.tag} error=$error'),
+        );
         exit(1);
       }
     }

@@ -34,25 +34,27 @@ class MemorySecureValueStore implements SecureValueStore {
 
 void main() {
   group('Official device identity', () {
-    test('is stable, separate, opaque, and coalesces concurrent creation',
-        () async {
-      final storage = MemorySecureValueStore();
-      final manager = OfficialDeviceIdManager(storage, random: Random(7));
-      final values = await Future.wait(<Future<String>>[
-        manager.loadOrCreate(),
-        manager.loadOrCreate(),
-        manager.loadOrCreate(),
-      ]);
-      expect(values.toSet(), hasLength(1));
-      final value = values.first;
-      expect(value, startsWith('zg_'));
-      expect(value.length, greaterThan(40));
-      expect(
-        utf8.decode(storage.values[OfficialDeviceIdManager.storageKey]!),
-        value,
-      );
-      expect(await manager.loadOrCreate(), value);
-    });
+    test(
+      'is stable, separate, opaque, and coalesces concurrent creation',
+      () async {
+        final storage = MemorySecureValueStore();
+        final manager = OfficialDeviceIdManager(storage, random: Random(7));
+        final values = await Future.wait(<Future<String>>[
+          manager.loadOrCreate(),
+          manager.loadOrCreate(),
+          manager.loadOrCreate(),
+        ]);
+        expect(values.toSet(), hasLength(1));
+        final value = values.first;
+        expect(value, startsWith('zg_'));
+        expect(value.length, greaterThan(40));
+        expect(
+          utf8.decode(storage.values[OfficialDeviceIdManager.storageKey]!),
+          value,
+        );
+        expect(await manager.loadOrCreate(), value);
+      },
+    );
 
     test('fails closed for malformed protected identity', () async {
       final storage = MemorySecureValueStore()
@@ -79,29 +81,37 @@ void main() {
       expect(storage.values, isEmpty);
     });
 
-    test('round-trips authoritative raw source and redacts diagnostics',
-        () async {
-      final storage = MemorySecureValueStore();
-      final store = SecureOfficialCatalogStore(
-        policy: const ClientPolicy.official(),
-        storage: storage,
-      );
-      final catalog = _catalog(revision: 1, name: 'First');
+    test(
+      'round-trips authoritative raw source and redacts diagnostics',
+      () async {
+        final storage = MemorySecureValueStore();
+        final store = SecureOfficialCatalogStore(
+          policy: const ClientPolicy.official(),
+          storage: storage,
+        );
+        final catalog = _catalog(revision: 1, name: 'First');
 
-      await store.save(catalog);
-      final loaded = await store.load();
+        await store.save(catalog);
+        final loaded = await store.load();
 
-      expect(loaded.revision, 1);
-      expect(loaded.profiles.single.name, 'First');
-      expect(
-          loaded.profiles.single.configs.single.normalized.protocol, 'vless');
-      expect(loaded.profiles.single.rawSource, _link);
-      expect(loaded.profiles.single.toString(), isNot(contains(_link)));
-      expect(loaded.profiles.single.configs.single.toString(),
-          isNot(contains(_link)));
-      expect(
-          storage.values.keys, contains('zagros.official.catalog.manifest.v1'));
-    });
+        expect(loaded.revision, 1);
+        expect(loaded.profiles.single.name, 'First');
+        expect(
+          loaded.profiles.single.configs.single.normalized.protocol,
+          'vless',
+        );
+        expect(loaded.profiles.single.rawSource, _link);
+        expect(loaded.profiles.single.toString(), isNot(contains(_link)));
+        expect(
+          loaded.profiles.single.configs.single.toString(),
+          isNot(contains(_link)),
+        );
+        expect(
+          storage.values.keys,
+          contains('zagros.official.catalog.manifest.v1'),
+        );
+      },
+    );
 
     test('successful replacement cleans the obsolete protected slot', () async {
       final storage = MemorySecureValueStore();
@@ -123,32 +133,34 @@ void main() {
       expect((await store.load()).profiles.single.name, 'Second');
     });
 
-    test('manifest-last alternating slots preserve last good catalog',
-        () async {
-      final storage = MemorySecureValueStore();
-      final store = SecureOfficialCatalogStore(
-        policy: const ClientPolicy.official(),
-        storage: storage,
-      );
-      await store.save(_catalog(revision: 1, name: 'Stable'));
-      final firstManifest = utf8.decode(
-        storage.values['zagros.official.catalog.manifest.v1']!,
-      );
+    test(
+      'manifest-last alternating slots preserve last good catalog',
+      () async {
+        final storage = MemorySecureValueStore();
+        final store = SecureOfficialCatalogStore(
+          policy: const ClientPolicy.official(),
+          storage: storage,
+        );
+        await store.save(_catalog(revision: 1, name: 'Stable'));
+        final firstManifest = utf8.decode(
+          storage.values['zagros.official.catalog.manifest.v1']!,
+        );
 
-      storage.failNextWriteFor = 'zagros.official.catalog.manifest.v1';
-      await expectLater(
-        store.save(_catalog(revision: 2, name: 'Interrupted')),
-        throwsStateError,
-      );
+        storage.failNextWriteFor = 'zagros.official.catalog.manifest.v1';
+        await expectLater(
+          store.save(_catalog(revision: 2, name: 'Interrupted')),
+          throwsStateError,
+        );
 
-      expect(
-        utf8.decode(storage.values['zagros.official.catalog.manifest.v1']!),
-        firstManifest,
-      );
-      final recovered = await store.load();
-      expect(recovered.revision, 1);
-      expect(recovered.profiles.single.name, 'Stable');
-    });
+        expect(
+          utf8.decode(storage.values['zagros.official.catalog.manifest.v1']!),
+          firstManifest,
+        );
+        final recovered = await store.load();
+        expect(recovered.revision, 1);
+        expect(recovered.profiles.single.name, 'Stable');
+      },
+    );
 
     test('detects protected chunk tampering', () async {
       final storage = MemorySecureValueStore();
@@ -167,37 +179,43 @@ void main() {
       await expectLater(store.load(), throwsFormatException);
     });
 
-    test('rejects forged config entries and insecure subscription sources',
-        () async {
-      final storage = MemorySecureValueStore();
-      final store = SecureOfficialCatalogStore(
-        policy: const ClientPolicy.official(),
-        storage: storage,
-      );
-      final parsed = const OfficialConfigParser().parse(_link).single;
-      final now = DateTime.utc(2026, 9, 7);
-      final forged = OfficialProfile(
-        id: 'profile_secure_1',
-        name: 'Forged',
-        kind: OfficialProfileKind.subscription,
-        subscriptionUri: Uri.parse('http://panel.example/sub'),
-        rawSource: _link,
-        configs: <OfficialConfigEntry>[
-          OfficialConfigEntry(
-            id: 'wrong.entry',
-            rawText: parsed.rawText,
-            normalized: parsed.normalized,
+    test(
+      'rejects forged config entries and insecure subscription sources',
+      () async {
+        final storage = MemorySecureValueStore();
+        final store = SecureOfficialCatalogStore(
+          policy: const ClientPolicy.official(),
+          storage: storage,
+        );
+        final parsed = const OfficialConfigParser().parse(_link).single;
+        final now = DateTime.utc(2026, 9, 7);
+        final forged = OfficialProfile(
+          id: 'profile_secure_1',
+          name: 'Forged',
+          kind: OfficialProfileKind.subscription,
+          subscriptionUri: Uri.parse('http://panel.example/sub'),
+          rawSource: _link,
+          configs: <OfficialConfigEntry>[
+            OfficialConfigEntry(
+              id: 'wrong.entry',
+              rawText: parsed.rawText,
+              normalized: parsed.normalized,
+            ),
+          ],
+          createdAt: now,
+          updatedAt: now,
+        );
+        await expectLater(
+          store.save(
+            OfficialProfileCatalog(
+              revision: 1,
+              profiles: <OfficialProfile>[forged],
+            ),
           ),
-        ],
-        createdAt: now,
-        updatedAt: now,
-      );
-      await expectLater(
-        store.save(OfficialProfileCatalog(
-            revision: 1, profiles: <OfficialProfile>[forged])),
-        throwsFormatException,
-      );
-    });
+          throwsFormatException,
+        );
+      },
+    );
   });
 }
 

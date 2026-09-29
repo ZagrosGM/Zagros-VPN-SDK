@@ -19,7 +19,8 @@ AllowedIPs = 0.0.0.0/0
 ''';
 
 const _link = 'ss://YWVzLTI1Ni1nY206c2VjcmV0@example:8388#one';
-const _markerWg = '# zagros-file: /sub/file/TOKEN0123456789abcdef0123456789/wireguard/wg0';
+const _markerWg =
+    '# zagros-file: /sub/file/TOKEN0123456789abcdef0123456789/wireguard/wg0';
 const _markerOvpn =
     '# zagros-file: /sub/file/TOKEN0123456789abcdef0123456789/openvpn/ovpn0';
 
@@ -451,8 +452,10 @@ void main() {
   group('OfficialConfigParser comments-only', () {
     test('comments-only bodies yield zero configs, not an error', () {
       const parser = OfficialConfigParser();
-      expect(parser.parse('# zagros-file: /sub/file/T/wireguard/wg0\n# note\n'),
-          isEmpty);
+      expect(
+        parser.parse('# zagros-file: /sub/file/T/wireguard/wg0\n# note\n'),
+        isEmpty,
+      );
       expect(() => parser.parse('not a configuration'), throwsFormatException);
     });
   });
@@ -470,7 +473,8 @@ Future<void> _tamperFiles(_MemoryStore storage, Object? replacement) async {
   final builder = BytesBuilder(copy: false);
   for (var index = 0; index < chunks; index += 1) {
     builder.add(
-        (await storage.read('zagros.official.catalog.$slot.$index.v1'))!);
+      (await storage.read('zagros.official.catalog.$slot.$index.v1'))!,
+    );
   }
   final catalog =
       jsonDecode(utf8.decode(builder.takeBytes())) as Map<String, Object?>;
@@ -487,26 +491,28 @@ Future<void> _tamperFiles(_MemoryStore storage, Object? replacement) async {
   final count = (encoded.length / chunkBytes).ceil();
   for (var index = 0; index < count; index += 1) {
     final start = index * chunkBytes;
-    final end =
-        start + chunkBytes > encoded.length ? encoded.length : start + chunkBytes;
+    final end = start + chunkBytes > encoded.length
+        ? encoded.length
+        : start + chunkBytes;
     await storage.write(
       'zagros.official.catalog.$slot.$index.v1',
       encoded.sublist(start, end),
     );
   }
   final digest = await Sha256().hash(encoded);
-  final hex = digest.bytes
-      .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
-      .join();
+  final hex =
+      digest.bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
   await storage.write(
     manifestKey,
-    utf8.encode(jsonEncode(<String, Object?>{
-      'v': 1,
-      'slot': slot,
-      'chunks': count,
-      'bytes': encoded.length,
-      'sha256': hex,
-      'revision': manifest['revision'],
-    })),
+    utf8.encode(
+      jsonEncode(<String, Object?>{
+        'v': 1,
+        'slot': slot,
+        'chunks': count,
+        'bytes': encoded.length,
+        'sha256': hex,
+        'revision': manifest['revision'],
+      }),
+    ),
   );
 }

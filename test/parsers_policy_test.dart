@@ -15,22 +15,28 @@ void main() {
     expect(config.extensions['uri'], contains('x-extra=kept'));
   });
 
-  test('URI parser correctly normalizes VLESS Reality links with flow and pbk', () {
-    final config = parseShareUri(
-      'vless://a0000000-0000-0000-0000-000000000001@109.248.161.249:9443?security=reality&sni=www.google.com&fp=chrome&pbk=eYNFrun6PN4T7eeCL9PNkkkqvU50V7YdE8vql3rlc1s&sid=12345678&flow=xtls-rprx-vision&type=tcp#VPS-Reality',
-    );
-    expect(config.protocol, 'vless');
-    expect(config.endpoints.single.host, '109.248.161.249');
-    expect(config.endpoints.single.port, 9443);
-    expect(config.credentials['id'], 'a0000000-0000-0000-0000-000000000001');
-    expect(config.options['security'], 'reality');
-    expect(config.options['sni'], 'www.google.com');
-    expect(config.options['fp'], 'chrome');
-    expect(config.options['pbk'], 'eYNFrun6PN4T7eeCL9PNkkkqvU50V7YdE8vql3rlc1s');
-    expect(config.options['sid'], '12345678');
-    expect(config.options['flow'], 'xtls-rprx-vision');
-    expect(config.displayName, 'VPS-Reality');
-  });
+  test(
+    'URI parser correctly normalizes VLESS Reality links with flow and pbk',
+    () {
+      final config = parseShareUri(
+        'vless://a0000000-0000-0000-0000-000000000001@109.248.161.249:9443?security=reality&sni=www.google.com&fp=chrome&pbk=eYNFrun6PN4T7eeCL9PNkkkqvU50V7YdE8vql3rlc1s&sid=12345678&flow=xtls-rprx-vision&type=tcp#VPS-Reality',
+      );
+      expect(config.protocol, 'vless');
+      expect(config.endpoints.single.host, '109.248.161.249');
+      expect(config.endpoints.single.port, 9443);
+      expect(config.credentials['id'], 'a0000000-0000-0000-0000-000000000001');
+      expect(config.options['security'], 'reality');
+      expect(config.options['sni'], 'www.google.com');
+      expect(config.options['fp'], 'chrome');
+      expect(
+        config.options['pbk'],
+        'eYNFrun6PN4T7eeCL9PNkkkqvU50V7YdE8vql3rlc1s',
+      );
+      expect(config.options['sid'], '12345678');
+      expect(config.options['flow'], 'xtls-rprx-vision');
+      expect(config.displayName, 'VPS-Reality');
+    },
+  );
 
   test('VMess parser accepts padded base64 and preserves original fields', () {
     final value = base64Url.encode(
@@ -238,10 +244,7 @@ proxies:
                     'enabled': true,
                     'server_name': 'panel.example.com',
                   },
-                  'transport': <String, Object?>{
-                    'type': 'ws',
-                    'path': '/ws',
-                  },
+                  'transport': <String, Object?>{'type': 'ws', 'path': '/ws'},
                 },
               ],
             },
@@ -252,7 +255,10 @@ proxies:
     expect(vlessApp.protocol, 'vless');
     expect(vlessApp.endpoints.single.host, '109.248.161.249');
     expect(vlessApp.endpoints.single.port, 443);
-    expect(vlessApp.credentials['uuid'], '43924c53-b40b-4dc8-a831-c4d32a9e2db3');
+    expect(
+      vlessApp.credentials['uuid'],
+      '43924c53-b40b-4dc8-a831-c4d32a9e2db3',
+    );
     expect(vlessApp.extensions['outbound'], isA<Map<String, Object?>>());
   });
 
